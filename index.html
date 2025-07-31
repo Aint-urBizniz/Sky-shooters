@@ -22,7 +22,7 @@
     let bullets = [];
     let stars = [];
     let keys = {};
-    let canShoot = true; // shooting cooldown flag
+    let canShoot = true;
 
     function drawPlayer() {
       ctx.fillStyle = "cyan";
@@ -36,9 +36,7 @@
 
     function drawBullets() {
       ctx.fillStyle = "lime";
-      bullets.forEach(b => {
-        ctx.fillRect(b.x-2, b.y, 4, 10);
-      });
+      bullets.forEach(b => ctx.fillRect(b.x-2, b.y, 4, 10));
     }
 
     function drawStars() {
@@ -61,7 +59,7 @@
     function update() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Movement
+      // Player movement
       if (keys["ArrowLeft"] && player.x > player.size/2) {
         player.x -= player.speed;
       }
@@ -69,11 +67,11 @@
         player.x += player.speed;
       }
 
-      // Shooting (hold space for autofire)
+      // Shooting
       if (keys[" "] && canShoot) {
         shoot();
         canShoot = false;
-        setTimeout(() => canShoot = true, 200); // 200ms cooldown
+        setTimeout(() => canShoot = true, 200);
       }
 
       drawPlayer();
@@ -94,6 +92,20 @@
         s.y > -100 && s.y < canvas.height+100
       );
 
+      // Collision detection
+      bullets.forEach((b, bi) => {
+        stars.forEach((s, si) => {
+          let dx = b.x - s.x;
+          let dy = b.y - s.y;
+          let distance = Math.sqrt(dx*dx + dy*dy);
+          if (distance < s.size + 5) { // bullet radius ~5
+            // remove star + bullet
+            stars.splice(si, 1);
+            bullets.splice(bi, 1);
+          }
+        });
+      });
+
       requestAnimationFrame(update);
     }
 
@@ -107,7 +119,7 @@
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height / 2,
-        size: 10 + Math.random() * 15,
+        size: 4 + Math.random() * 6, // much smaller stars
         speed: speed,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed
