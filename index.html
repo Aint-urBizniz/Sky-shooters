@@ -17,7 +17,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Player (ugly shooter for now lol)
+    // Player (still placeholder)
     const player = { x: canvas.width/2, y: canvas.height-60, size: 30, speed: 10 };
     let bullets = [];
     let stars = [];
@@ -47,7 +47,7 @@
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(s.x, s.y);
-          ctx.lineTo(s.x - s.vx*5, s.y - s.vy*5);
+          ctx.lineTo(s.x - s.vx*6, s.y - s.vy*6);
           ctx.stroke();
         }
 
@@ -74,7 +74,12 @@
         s.x += s.vx;
         s.y += s.vy;
       });
-      stars = stars.filter(s => s.x > -50 && s.x < canvas.width+50 && s.y > -50 && s.y < canvas.height+50);
+
+      // Keep stars only if still visible
+      stars = stars.filter(s => 
+        s.x > -100 && s.x < canvas.width+100 &&
+        s.y > -100 && s.y < canvas.height+100
+      );
 
       requestAnimationFrame(update);
     }
@@ -84,12 +89,12 @@
     }
 
     function spawnStar() {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 7; // varied speeds
+      const angle = Math.random() * Math.PI * 2; // random direction
+      const speed = 1 + Math.random() * 7; // random speed
       stars.push({
         x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height / 2, // spawn in upper half
-        size: 4 + Math.random()*6,  // bigger stars
+        y: Math.random() * canvas.height / 2, // spawn in top half
+        size: 10 + Math.random() * 15, // bigger stars
         speed: speed,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed
@@ -102,7 +107,7 @@
       if(e.key === " ") shoot();
     });
 
-    setInterval(spawnStar, 700); // fewer stars
+    setInterval(spawnStar, 1400); // less frequent stars
     update();
   </script>
 </body>
