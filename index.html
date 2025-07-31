@@ -17,10 +17,11 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Player (still placeholder)
-    const player = { x: canvas.width/2, y: canvas.height-60, size: 30, speed: 10 };
+    // Player
+    const player = { x: canvas.width/2, y: canvas.height-60, size: 30, speed: 7 };
     let bullets = [];
     let stars = [];
+    let keys = {}; // track pressed keys
 
     function drawPlayer() {
       ctx.fillStyle = "cyan";
@@ -41,8 +42,7 @@
 
     function drawStars() {
       stars.forEach(s => {
-        // Tail effect for fast stars
-        if (s.speed > 5) {
+        if (s.speed > 5) { // tail for fast stars
           ctx.strokeStyle = "rgba(255,255,200,0.6)";
           ctx.lineWidth = 2;
           ctx.beginPath();
@@ -50,7 +50,6 @@
           ctx.lineTo(s.x - s.vx*6, s.y - s.vy*6);
           ctx.stroke();
         }
-
         ctx.fillStyle = "white";
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
@@ -60,6 +59,14 @@
 
     function update() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Move player smoothly
+      if (keys["ArrowLeft"] && player.x > player.size/2) {
+        player.x -= player.speed;
+      }
+      if (keys["ArrowRight"] && player.x < canvas.width - player.size/2) {
+        player.x += player.speed;
+      }
 
       drawPlayer();
       drawBullets();
@@ -74,8 +81,6 @@
         s.x += s.vx;
         s.y += s.vy;
       });
-
-      // Keep stars only if still visible
       stars = stars.filter(s => 
         s.x > -100 && s.x < canvas.width+100 &&
         s.y > -100 && s.y < canvas.height+100
@@ -89,25 +94,28 @@
     }
 
     function spawnStar() {
-      const angle = Math.random() * Math.PI * 2; // random direction
-      const speed = 1 + Math.random() * 7; // random speed
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1 + Math.random() * 7;
       stars.push({
         x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height / 2, // spawn in top half
-        size: 10 + Math.random() * 15, // bigger stars
+        y: Math.random() * canvas.height / 2,
+        size: 10 + Math.random() * 15,
         speed: speed,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed
       });
     }
 
+    // Key listeners
     document.addEventListener("keydown", e => {
-      if(e.key === "ArrowLeft" && player.x > player.size) player.x -= player.speed;
-      if(e.key === "ArrowRight" && player.x < canvas.width - player.size) player.x += player.speed;
-      if(e.key === " ") shoot();
+      keys[e.key] = true;
+      if (e.key === " ") shoot();
+    });
+    document.addEventListener("keyup", e => {
+      keys[e.key] = false;
     });
 
-    setInterval(spawnStar, 1400); // less frequent stars
+    setInterval(spawnStar, 1400);
     update();
   </script>
 </body>
