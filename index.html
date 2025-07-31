@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sky Shooters</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: radial-gradient(ellipse at center, #000 0%, #001133 100%);
+    }
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    let stars = [];
+    let bullets = [];
+    let score = 0;
+
+    const player = { x: canvas.width/2, y: canvas.height-30, size: 20 };
+
+    function drawPlayer() {
+      ctx.beginPath();
+      ctx.moveTo(player.x, player.y);
+      ctx.lineTo(player.x - player.size, player.y + player.size*2);
+      ctx.lineTo(player.x + player.size, player.y + player.size*2);
+      ctx.closePath();
+      ctx.fillStyle = "cyan";
+      ctx.fill();
+    }
+
+    function drawStars() {
+      ctx.fillStyle = "white";
+      for (let s of stars) {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function drawBullets() {
+      ctx.fillStyle = "yellow";
+      for (let b of bullets) {
+        ctx.fillRect(b.x, b.y, 4, 10);
+      }
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawPlayer();
+
+      // update stars
+      for (let s of stars) {
+        s.y += s.speed;
+        if (s.y > canvas.height) {
+          s.y = -10;
+          s.x = Math.random() * canvas.width;
+        }
+      }
+
+      drawStars();
+
+      // update bullets
+      for (let i = bullets.length-1; i >= 0; i--) {
+        bullets[i].y -= 5;
+        if (bullets[i].y < 0) {
+          bullets.splice(i, 1);
+        }
+      }
+
+      drawBullets();
+
+      // collisions
+      for (let i = bullets.length-1; i >= 0; i--) {
+        for (let j = stars.length-1; j >= 0; j--) {
+          let dx = bullets[i].x - stars[j].x;
+          let dy = bullets[i].y - stars[j].y;
+          let dist = Math.sqrt(dx*dx + dy*dy);
+
+          if (dist < stars[j].size + 5) {
+            stars.splice(j, 1);
+            bullets.splice(i, 1);
+            score++;
+            document.getElementById("score").innerText = "Score: " + score;
+            break;
+          }
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    // init stars
+    for (let i = 0; i < 30; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 2 + Math.random() * 3,
+        speed: 1 + Math.random() * 2
+      });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "ArrowLeft") player.x -= 20;
+      if (e.code === "ArrowRight") player.x += 20;
+      if (e.code === "Space") {
+        bullets.push({ x: player.x, y: player.y });
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
