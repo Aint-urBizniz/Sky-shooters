@@ -13,7 +13,7 @@ Watch the stars twinkle, and click on shooting stars to score points. ✨
 ---
 
 ## 🚀 Play It Here
-👉 [Play Night Sky Game](https://yourusername.github.io/night-sky-game/)  
+👉 [Play Night Sky Game]((https://aint-urbizniz.github.io/Sky-shooters/))  
 
 ---
 
